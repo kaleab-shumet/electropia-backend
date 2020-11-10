@@ -11,6 +11,7 @@ class Database {
     }
 
     _connect() {
+        //'mongodb+srv://abebe:jX9wpGwlOvp8o7Rl@cluster0.xowdw.mongodb.net/xena_db'
         mongoose.connect(`${process.env.DATABASE_SERVER}/${process.env.DATABASE_NAME}`,
             {
                 useNewUrlParser: true,
