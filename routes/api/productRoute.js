@@ -1,4 +1,5 @@
-const express = require('express')
+const express = require('express');
+const { OptionalUserAuth } = require('../../utils/auth');
 const Product = require('./../../models/Product')
 
 const productRoute = express.Router();
@@ -46,13 +47,15 @@ productRoute.get('/', async (req, res) => {
 })
 
 
-productRoute.get('/:id/detail', async (req, res) => {
+productRoute.get('/:id/detail', OptionalUserAuth, async (req, res) => {
   const { id } = req.params
   console.log('Product detail', id);
   try {
 
     const product = await Product.findById(id)
-    return res.status(200).json(product)
+
+    
+    return res.status(200).json({product, user: req.user})
   }
   catch (error) {
   }

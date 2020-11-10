@@ -1,14 +1,40 @@
 const express = require('express');
 const User = require('../../models/User');
 const bycrypt = require('bcryptjs')
-const jwt = require('jsonwebtoken')
+const createError = require('http-errors');
+const generateTokens = require('../../utils/TokenGen');
 
 const userRoute = express.Router();
 
-userRoute.get('/sign', (req,res) =>{
-     return res.status(200).send('abebebesobela')
+
+userRoute.post('/signin', async (req, res, next) => {
+
+    try {
+        const email = req.body.email;
+
+        const iUser = await User.findOne({ email })
+
+        if (!iUser) {
+            throw createError.Unauthorized()
+        }
+
+        const reqPassword = req.body.password;
+
+        const passwordMatch = await bycrypt.compare(reqPassword, iUser.password)
+
+        if (!passwordMatch) {
+            throw createError.Unauthorized()
+        }
+
+        return res.json(generateTokens(iUser._id, iUser.email))
+    }
+    catch (error) {
+        next(error)
+    }
+
 })
-userRoute.post('/signup', async (req, res) => {
+
+userRoute.post('/signup', async (req, res, next) => {
 
     console.log(req.body);
     try {
@@ -18,16 +44,14 @@ userRoute.post('/signup', async (req, res) => {
 
         password = await bycrypt.hash(password, 10)
 
-        const newUser = new User({name,email, password});
+        const newUser = new User({ name, email, password });
         const userProp = await newUser.save()
 
-        const token = jwt.sign({ userid: userProp._id, email: userProp.email }, process.env.JWT_KEY);
-
-        return res.status(200).json({token})
+        return res.json(generateTokens(userProp._id, userProp.email))
+        
     }
     catch (error) {
-        console.log(error);
-        return res.status(500).json({error: error.message});
+        next(error)
     }
 })
 

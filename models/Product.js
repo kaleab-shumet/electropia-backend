@@ -1,3 +1,4 @@
+const { ref } = require('joi');
 const mongoose = require('mongoose')
 const mongoosePaginate = require('mongoose-paginate');
 const { default: validator } = require('validator')
@@ -35,7 +36,8 @@ const productSchema = mongoose.Schema({
     },
     catagory: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true
+        required: true,
+        ref: 'Catagory'
     },
     numberOfItems: {
         type: Number,
@@ -44,7 +46,8 @@ const productSchema = mongoose.Schema({
     updated: { type: Date, default: Date.now },
     created: { type: Date, default: Date.now },
 
-})
+}).index({title: 'text'})
+
 
 productSchema.plugin(mongoosePaginate)
 
